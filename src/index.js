@@ -29,14 +29,18 @@ registerBlockType( 'featured-post/featured-post', {
                 .then(response => response.json())
                 .then(data => {
                     setPosts(data);
+                    console.log(data)
                     if (data.length > 0) {
                         const selectedPosts = data.map(post => post.ID);
-                        const postTitles = data.map(post => post.title.rendered);
-                        const postExcerpts = data.map(post => post.excerpt.rendered);
-                        setAttributes({ 
-                            selectedPosts: attributes.selectedPosts || selectedPosts, 
-                            postTitles: attributes.postTitles || postTitles, 
-                            postExcerpts: attributes.postExcerpts || postExcerpts,
+                        console.log(selectedPosts)
+                        const postTitles = data.map(post => post.title);
+                        console.log(postTitles)
+                        const postExcerpts = data.map(post => post.excerpt);
+                        console.log(postExcerpts)
+                        setAttributes({
+                            selectedPosts: selectedPosts,
+                            postTitles: postTitles,
+                            postExcerpts: postExcerpts,
                         });
                     }
                 })
@@ -50,36 +54,22 @@ registerBlockType( 'featured-post/featured-post', {
         if ( posts.length === 0 ) {
             return 'No posts';
         }
-    
-        return (
-            <>
-                {attributes.selectedPosts && attributes.selectedPosts.map(postId => {
-                    const post = posts.find( post => post.ID === postId );
-                    return (
-                        <div key={postId}>
-                            <h2>{ post.title.rendered }</h2>
-                            <div dangerouslySetInnerHTML={ { __html: post.excerpt.rendered } } />
-                        </div>
-                    );
-                })}
-            </>
-        );
     },
-
+    
     save: ( { attributes } ) => {
         // Log the attributes object
         console.log(attributes);
-    
-        // Save a placeholder div for each selected post
+        
         return (
             <div className="wp-block-featured-post-featured-post">
-                {attributes.selectedPosts && attributes.selectedPosts.map(postId => (
-                    <h2 className="featured-post">
-                        {postId}
-                        
-                        <span className="post-title">Post Title</span>
-                        <span className="post-excerpt">Post Excerpt</span>
-                    </h2>
+                {attributes.selectedPosts && attributes.selectedPosts.map((postId, index) => (
+                    <div className="featured-post" key={postId}>
+                        <h2 className="featured-post">
+                            {postId}
+                        </h2>
+                        <span className="post-title">{attributes.postTitles[index]}</span>
+                        <span className="post-excerpt">{attributes.postExcerpts[index]}</span>
+                    </div>
                 ))}
             </div>
         );

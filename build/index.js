@@ -142,14 +142,18 @@ __webpack_require__.r(__webpack_exports__);
     (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
       fetch('/wp-json/featured-post/v1/selected-posts').then(response => response.json()).then(data => {
         setPosts(data);
+        console.log(data);
         if (data.length > 0) {
           const selectedPosts = data.map(post => post.ID);
-          const postTitles = data.map(post => post.title.rendered);
-          const postExcerpts = data.map(post => post.excerpt.rendered);
+          console.log(selectedPosts);
+          const postTitles = data.map(post => post.title);
+          console.log(postTitles);
+          const postExcerpts = data.map(post => post.excerpt);
+          console.log(postExcerpts);
           setAttributes({
-            selectedPosts: attributes.selectedPosts || selectedPosts,
-            postTitles: attributes.postTitles || postTitles,
-            postExcerpts: attributes.postExcerpts || postExcerpts
+            selectedPosts: selectedPosts,
+            postTitles: postTitles,
+            postExcerpts: postExcerpts
           });
         }
       }).catch(error => console.error('Error:', error));
@@ -160,33 +164,24 @@ __webpack_require__.r(__webpack_exports__);
     if (posts.length === 0) {
       return 'No posts';
     }
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, attributes.selectedPosts && attributes.selectedPosts.map(postId => {
-      const post = posts.find(post => post.ID === postId);
-      return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-        key: postId
-      }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, post.title.rendered), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-        dangerouslySetInnerHTML: {
-          __html: post.excerpt.rendered
-        }
-      }));
-    }));
   },
   save: ({
     attributes
   }) => {
     // Log the attributes object
     console.log(attributes);
-
-    // Save a placeholder div for each selected post
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: "wp-block-featured-post-featured-post"
-    }, attributes.selectedPosts && attributes.selectedPosts.map(postId => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", {
+    }, attributes.selectedPosts && attributes.selectedPosts.map((postId, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "featured-post",
+      key: postId
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", {
       className: "featured-post"
-    }, postId, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    }, postId), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
       className: "post-title"
-    }, "Post Title"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    }, attributes.postTitles[index]), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
       className: "post-excerpt"
-    }, "Post Excerpt"))));
+    }, attributes.postExcerpts[index]))));
   }
 });
 })();

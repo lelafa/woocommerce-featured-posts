@@ -182,19 +182,19 @@ function render_featured_post_block( $attributes ) {
 
     if (isset($attributes['selectedPosts'])) {
         $post_ids = $attributes['selectedPosts'];
+        $post_titles = $attributes['postTitles'];
+        $post_excerpts = $attributes['postExcerpts'];
 
-        foreach ( $post_ids as $post_id ) {
-            $post = get_post( $post_id );
-
-            if ( ! $post ) {
-                continue;
-            }
-
-            $title = get_the_title( $post );
-            $excerpt = get_the_excerpt( $post );
+        foreach ( $post_ids as $index => $post_id ) {
+            $title = isset($post_titles[$index]) ? $post_titles[$index] : '';
+            $excerpt = isset($post_excerpts[$index]) ? $post_excerpts[$index] : '';
 
             $output .= sprintf(
-                '<h2 className="featured-post">%s</h2>',
+                '<div className="featured-post">
+                    <h2 className="featured-post">%s</h2>
+                    <span className="post-title">%s</span>
+                    <span className="post-excerpt">%s</span>
+                </div>',
                 esc_attr( $post_id ),
                 esc_html( $title ),
                 wp_kses_post( $excerpt )
