@@ -1,5 +1,5 @@
 {
-    "name": "my-block",
+    "name": "featured-post",
     "version": "1.0.0",
     "main": "src/index.js",
     "scripts": {

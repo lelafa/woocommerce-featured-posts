@@ -24,6 +24,38 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
+
+ function register_featured_post_route() {
+    register_rest_route( 'featured-post/v1', '/selected-posts', array(
+        'methods' => 'GET',
+        'callback' => 'get_selected_posts',
+        'permission_callback' => '__return_true'
+    ) );
+}
+function get_selected_posts() {
+    // Query for the selected posts
+    $args = array(
+        'post_type' => 'post',
+        'posts_per_page' => 5,  // Adjust this value as needed
+    );
+    $query = new WP_Query( $args );
+
+    // Prepare the post data for the REST API response
+    $posts = array();
+    while ( $query->have_posts() ) {
+        $query->the_post();
+        $posts[] = array(
+            'ID' => get_the_ID(),
+            'title' => get_the_title(),
+            'excerpt' => get_the_excerpt(),
+        );
+    }
+
+    // Return the post data
+    return $posts;
+}
+
+add_action( 'rest_api_init', 'register_featured_post_route' );
 function my_block_enqueue() {
     wp_enqueue_script(
         'my-block-script',
@@ -144,3 +176,35 @@ function my_plugin_get_selected_posts() {
         'post_3' => get_post( $post_3 ),
     );
 }
+
+function render_featured_post_block( $attributes ) {
+    $output = '';
+
+    if (isset($attributes['selectedPosts'])) {
+        $post_ids = $attributes['selectedPosts'];
+
+        foreach ( $post_ids as $post_id ) {
+            $post = get_post( $post_id );
+
+            if ( ! $post ) {
+                continue;
+            }
+
+            $title = get_the_title( $post );
+            $excerpt = get_the_excerpt( $post );
+
+            $output .= sprintf(
+                '<h2 className="featured-post">%s</h2>',
+                esc_attr( $post_id ),
+                esc_html( $title ),
+                wp_kses_post( $excerpt )
+            );
+        }
+    }
+
+    return $output;
+}
+
+register_block_type( 'featured-post/featured-post', array(
+    'render_callback' => 'render_featured_post_block',
+) );
