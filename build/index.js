@@ -120,69 +120,66 @@ __webpack_require__.r(__webpack_exports__);
   title: 'Featured Post',
   icon: 'megaphone',
   category: 'widgets',
-  attributes: {
-    selectedPosts: {
-      type: 'array',
-      default: null
-    },
-    postTitles: {
-      type: 'array',
-      default: []
-    },
-    postExcerpts: {
-      type: 'array',
-      default: []
-    }
-  },
-  edit: ({
-    attributes,
-    setAttributes
-  }) => {
-    const [posts, setPosts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)([]);
+  edit: () => {
+    const [posts, setPosts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(null);
+    const [selectedPosts, setSelectedPosts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)([]);
+    const [postTitles, setPostTitles] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)([]);
+    const [postExcerpts, setPostExcerpts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)([]);
     (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
       fetch('/wp-json/featured-post/v1/selected-posts').then(response => response.json()).then(data => {
+        const dataArray = Object.values(data);
+        console.log(dataArray);
+        setSelectedPosts(dataArray.map(post => post.ID));
+        setPostTitles(dataArray.map(post => post.post_title));
+        setPostExcerpts(dataArray.map(post => post.post_content));
         setPosts(data);
-        console.log(data);
-        if (data.length > 0) {
-          const selectedPosts = data.map(post => post.ID);
-          console.log(selectedPosts);
-          const postTitles = data.map(post => post.title);
-          console.log(postTitles);
-          const postExcerpts = data.map(post => post.excerpt);
-          console.log(postExcerpts);
-          setAttributes({
-            selectedPosts: selectedPosts,
-            postTitles: postTitles,
-            postExcerpts: postExcerpts
-          });
-        }
       }).catch(error => console.error('Error:', error));
     }, []);
-    if (!posts) {
-      return 'Loading...';
+
+    // If posts is null, return null (don't render anything)
+    if (posts === null) {
+      return null;
     }
+
+    // If posts is an empty array, return 'No posts'
     if (posts.length === 0) {
       return 'No posts';
     }
-  },
-  save: ({
-    attributes
-  }) => {
-    // Log the attributes object
-    console.log(attributes);
+    console.log(selectedPosts);
+    console.log(postTitles);
+    console.log(postExcerpts);
+    console.log(posts);
+    console.log(Object.keys(posts));
+
+    // If posts is not null and not an empty array, map over the posts and render them
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      className: "wp-block-featured-post-featured-post"
-    }, attributes.selectedPosts && attributes.selectedPosts.map((postId, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      className: "featured-post",
-      key: postId
-    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", {
+      className: "featured-posts"
+    }, selectedPosts.map((post, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      key: index,
       className: "featured-post"
-    }, postId), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
-      className: "post-title"
-    }, attributes.postTitles[index]), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
-      className: "post-excerpt"
-    }, attributes.postExcerpts[index]))));
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", {
+      className: "featured-post-title"
+    }, postTitles[index]), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+      className: "featured-post-excerpt"
+    }, postExcerpts[index]))));
   }
+  /*
+  
+  save: ( { attributes } ) => { 
+      console.log(attributes);
+  
+      return (
+          <div className="featured-posts">
+                  <div className="featured-post" >
+                      <h2 className="featured-post-title">
+                          {attributes.postTitles.map(Title => Title)}
+                      </h2>
+                      <span className="featured-post-excerpt">{attributes.postExcerpts.map(Excerpt => Excerpt)}</span>
+                  </div>
+          </div>
+      );
+  },
+  */
 });
 })();
 

@@ -6,73 +6,73 @@ registerBlockType( 'featured-post/featured-post', {
     icon: 'megaphone',
     category: 'widgets',
 
-    attributes: {
-        selectedPosts: {
-            type: 'array',
-            default: null,
-        },
-        postTitles: {
-            type: 'array',
-            default: [],
-        },
-        postExcerpts: {
-            type: 'array',
-            default: [],
-        },
-    },
-
-    edit: ( { attributes, setAttributes } ) => {
-        const [posts, setPosts] = useState([]);
+    edit: () => {
+        const [posts, setPosts] = useState(null);
     
+        const [selectedPosts, setSelectedPosts] = useState([]);
+        const [postTitles, setPostTitles] = useState([]);
+        const [postExcerpts, setPostExcerpts] = useState([]);
+        
         useEffect(() => {
             fetch('/wp-json/featured-post/v1/selected-posts')
                 .then(response => response.json())
                 .then(data => {
+                    const dataArray = Object.values(data);
+                    console.log(dataArray);
+                    setSelectedPosts(dataArray.map(post => post.ID));
+                    setPostTitles(dataArray.map(post => post.post_title));
+                    setPostExcerpts(dataArray.map(post => post.post_content));
                     setPosts(data);
-                    console.log(data)
-                    if (data.length > 0) {
-                        const selectedPosts = data.map(post => post.ID);
-                        console.log(selectedPosts)
-                        const postTitles = data.map(post => post.title);
-                        console.log(postTitles)
-                        const postExcerpts = data.map(post => post.excerpt);
-                        console.log(postExcerpts)
-                        setAttributes({
-                            selectedPosts: selectedPosts,
-                            postTitles: postTitles,
-                            postExcerpts: postExcerpts,
-                        });
-                    }
                 })
                 .catch(error => console.error('Error:', error));
         }, []);
     
-        if ( ! posts ) {
-            return 'Loading...';
+        // If posts is null, return null (don't render anything)
+        if (posts === null) {
+            return null;
         }
     
-        if ( posts.length === 0 ) {
+        // If posts is an empty array, return 'No posts'
+        if (posts.length === 0) {
             return 'No posts';
         }
-    },
-    
-    save: ( { attributes } ) => {
-        // Log the attributes object
-        console.log(attributes);
-        
+        console.log(selectedPosts)
+        console.log(postTitles)
+        console.log(postExcerpts)
+        console.log(posts);
+        console.log(Object.keys(posts));
+
+
+        // If posts is not null and not an empty array, map over the posts and render them
         return (
-            <div className="wp-block-featured-post-featured-post">
-                {attributes.selectedPosts && attributes.selectedPosts.map((postId, index) => (
-                    <div className="featured-post" key={postId}>
-                        <h2 className="featured-post">
-                            {postId}
+            <div className="featured-posts">
+                {selectedPosts.map((post, index) => (
+                    <div key={index} className="featured-post">
+                        <h2 className="featured-post-title">
+                            {postTitles[index]}
                         </h2>
-                        <span className="post-title">{attributes.postTitles[index]}</span>
-                        <span className="post-excerpt">{attributes.postExcerpts[index]}</span>
+                        <span className="featured-post-excerpt">{postExcerpts[index]}</span>
                     </div>
                 ))}
             </div>
         );
     },
+    /*
+    
+    save: ( { attributes } ) => { 
+        console.log(attributes);
+    
+        return (
+            <div className="featured-posts">
+                    <div className="featured-post" >
+                        <h2 className="featured-post-title">
+                            {attributes.postTitles.map(Title => Title)}
+                        </h2>
+                        <span className="featured-post-excerpt">{attributes.postExcerpts.map(Excerpt => Excerpt)}</span>
+                    </div>
+            </div>
+        );
+    },
+    */
     
 } );
